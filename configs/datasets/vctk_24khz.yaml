@@ -1,0 +1,18 @@
+dataset:
+  name: vctk
+  root: data/VCTK-Corpus-0.92
+  audio_glob: wav48_silence_trimmed/*/*_mic1.flac
+  transcript_dir: txt
+  transcript_extension: .txt
+
+audio:
+  sample_rate: 24000
+  mono: true
+  peak_normalize: false
+
+preprocessing:
+  output_dir: data/processed/vctk_24khz
+  manifest_dir: manifests/vctk_24khz
+  validation_fraction: 0.01
+  test_fraction: 0.01
+  seed: 1337

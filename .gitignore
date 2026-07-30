@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+
+# Local datasets and generated manifests
+data/*
+!data/LJSpeech-1.1/
+data/LJSpeech-1.1/*
+!data/LJSpeech-1.1/README.md
+!data/LJSpeech-1.1/wavs/
+data/LJSpeech-1.1/wavs/*
+!data/LJSpeech-1.1/wavs/.gitignore
+manifests/
+
+# Derived audio and features
+processed/
+features/
+mel_cache/
+*.wav
+*.flac
+*.mp3
+*.npy
+*.npz
+
+# Weights, checkpoints, and experiment output
+checkpoints/
+results/
+runs/
+wandb/
+logs/
+lightning_logs/
+*.log
+*.ckpt
+*.pt
+*.pth
+*.bin
+*.onnx
+*.engine
+
+# Local configuration and secrets
+.env
+.env.*
+*.local.yaml
+*.local.yml
+*.pem
+*.key
+*.p12
+*.pfx
+*.secret
+credentials*
+secrets*
+.netrc

@@ -1,0 +1,21 @@
+dataset:
+  name: ljspeech
+  root: data/LJSpeech-1.1
+  audio_dir: wavs
+  metadata_file: metadata.csv
+  metadata_delimiter: "|"
+  text_column: 2
+  audio_extension: .wav
+  speaker_id: ljspeech
+
+audio:
+  sample_rate: 16000
+  mono: true
+  peak_normalize: false
+
+preprocessing:
+  output_dir: data/processed/ljspeech_16khz
+  manifest_dir: manifests/ljspeech_16khz
+  validation_fraction: 0.01
+  test_fraction: 0.01
+  seed: 1337
