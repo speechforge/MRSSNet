@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="en" data-font-step="0">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive streaming neural vocoder audio comparisons for LJ Speech and VCTK.">
+  <meta name="theme-color" content="#f5f4ef" id="theme-color-meta">
+  <title>Streaming Neural Vocoding · Audio Samples</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+
+  <script>
+    (() => {
+      try {
+        const savedTheme = localStorage.getItem('streaming-vocoder-theme');
+        document.documentElement.classList.toggle('dark', savedTheme ? savedTheme === 'dark' : true);
+
+        const savedFont = Number(localStorage.getItem('streaming-vocoder-font-step'));
+        if (Number.isInteger(savedFont) && savedFont >= -2 && savedFont <= 2) {
+          document.documentElement.dataset.fontStep = String(savedFont);
+        }
+      } catch (_) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body class="antialiased">
+  <a class="skip-link" href="#main-content">Skip to audio samples</a>
+  <div class="page-grid" aria-hidden="true"></div>
+  <div class="ambient-orb -left-48 top-32 bg-blue-500" aria-hidden="true"></div>
+  <div class="ambient-orb -right-48 top-[42rem] bg-orange-500" aria-hidden="true"></div>
+
+  <header class="site-header sticky top-0 z-50">
+    <div id="scroll-progress" class="header-progress" aria-hidden="true"></div>
+    <div class="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
+      <a href="#top" class="group flex items-center gap-3 rounded-lg" aria-label="Streaming Neural Vocoding audio samples, back to top">
+        <span class="brand-mark grid size-10 place-items-center rounded-xl transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-105" aria-hidden="true">
+          <svg viewBox="0 0 28 28" class="size-6" fill="none">
+            <path d="M3 14h3l2.3-7 3.1 14 3.2-17 3.1 19 2.7-12 1.8 3H25" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span class="max-w-44 text-xs font-extrabold leading-tight tracking-[-0.025em] sm:max-w-none sm:text-sm">Streaming Neural Vocoding</span>
+      </a>
+
+      <nav class="order-3 hidden w-full items-center justify-center gap-1 border-t border-[var(--line)] pt-2 sm:flex md:order-2 md:w-auto md:border-0 md:pt-0" aria-label="Sample sections">
+        <a href="#ljspeech" class="control-button rounded-lg px-3 py-2 text-xs font-semibold">LJ Speech</a>
+        <a href="#vctk" class="control-button rounded-lg px-3 py-2 text-xs font-semibold">VCTK</a>
+      </nav>
+
+      <div id="accessibility-menu" class="relative order-2 md:order-3">
+        <button id="accessibility-toggle" type="button" class="control-shell control-button flex items-center gap-2 rounded-xl px-3 py-2.5" aria-label="Open accessibility settings" aria-haspopup="dialog" aria-controls="accessibility-panel" aria-expanded="false">
+          <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <circle cx="12" cy="4.5" r="2"/>
+            <path d="M5 8.5c2.2 1 4.5 1.5 7 1.5s4.8-.5 7-1.5M12 10v10M8 21l4-7 4 7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="hidden text-xs font-semibold sm:inline">Accessibility</span>
+          <svg viewBox="0 0 20 20" class="hidden size-3.5 transition-transform sm:block" data-accessibility-chevron fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div id="accessibility-panel" class="accessibility-panel" role="dialog" aria-label="Accessibility settings" aria-hidden="true">
+          <div class="flex items-center justify-between border-b border-[var(--line)] px-4 py-3">
+            <div>
+              <p class="text-sm font-bold">Accessibility</p>
+              <p class="mt-0.5 text-[0.65rem] text-[var(--muted)]">Display preferences</p>
+            </div>
+            <button id="accessibility-close" type="button" class="control-button grid size-8 place-items-center rounded-lg" aria-label="Close accessibility settings">
+              <svg viewBox="0 0 20 20" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="m6 6 8 8m0-8-8 8" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="p-3">
+            <button id="font-size-toggle" type="button" class="accessibility-row flex w-full items-center justify-between rounded-xl px-3 py-3 text-left" aria-controls="font-scale-panel" aria-expanded="false">
+              <span class="flex items-center gap-3">
+                <span class="grid size-9 place-items-center rounded-lg border border-[var(--line)] font-semibold" aria-hidden="true">Aa</span>
+                <span>
+                  <span class="block text-xs font-bold">Font size</span>
+                  <span id="font-size-value" class="mt-0.5 block text-[0.65rem] text-[var(--muted)]">Default</span>
+                </span>
+              </span>
+              <svg viewBox="0 0 20 20" class="size-4 transition-transform" data-font-chevron fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="m6 8 4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+
+            <div id="font-scale-panel" class="font-scale-panel" aria-hidden="true">
+              <div class="px-3 pb-3 pt-4">
+                <input id="font-size-range" class="font-size-range" type="range" min="-2" max="2" step="1" value="0" aria-label="Font size" aria-valuetext="Default">
+                <div class="mt-2 flex items-end justify-between px-0.5 font-mono font-semibold text-[var(--muted)]" aria-hidden="true">
+                  <span class="text-[0.55rem]">A−−</span>
+                  <span class="text-[0.62rem]">A−</span>
+                  <span class="text-xs">A</span>
+                  <span class="text-sm">A+</span>
+                  <span class="text-base">A++</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-2 border-t border-[var(--line)] px-3 pt-4">
+              <div class="mb-3 flex items-center justify-between">
+                <span class="text-xs font-bold">Color theme</span>
+                <span class="font-mono text-[0.58rem] uppercase tracking-wider text-[var(--muted)]">Appearance</span>
+              </div>
+              <div class="control-shell grid grid-cols-2 rounded-xl p-1" role="group" aria-label="Color theme">
+                <button type="button" class="theme-choice flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold" data-theme-option="light" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <circle cx="12" cy="12" r="3.4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" stroke-linecap="round"/>
+                  </svg>
+                  Light
+                </button>
+                <button type="button" class="theme-choice flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-xs font-semibold" data-theme-option="dark" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <path d="M20.1 15.1A8.2 8.2 0 0 1 8.9 3.9 8.3 8.3 0 1 0 20.1 15.1Z" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Dark
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section id="top" class="mx-auto max-w-7xl px-4 pb-24 pt-16 sm:px-6 sm:pt-24 lg:px-8 lg:pb-32">
+      <div class="grid items-end gap-12 lg:grid-cols-[1.15fr_0.85fr]">
+        <div class="reveal">
+          <p class="eyebrow mb-6">Interactive audio samples</p>
+          <h1 class="display-title max-w-4xl font-extrabold">
+            Audio<br><span class="outline-word">samples.</span>
+          </h1>
+          <p class="mt-8 max-w-xl text-base leading-7 text-[var(--muted)] sm:text-lg">
+            Compare aligned reconstructions and unseen-speaker references. Click any waveform to play or pause it.
+          </p>
+
+          <div class="mt-8 flex flex-wrap gap-2 font-mono text-[0.66rem] font-medium uppercase tracking-wider text-[var(--muted)]">
+            <span class="rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-2"><strong class="mr-1 text-[var(--ink)]">02</strong> datasets</span>
+            <span class="rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-2"><strong class="mr-1 text-[var(--ink)]">05</strong> model variants</span>
+            <span class="rounded-full border border-[var(--line)] bg-[var(--panel)] px-3 py-2"><strong class="mr-1 text-[var(--ink)]">35</strong> clips</span>
+          </div>
+        </div>
+
+        <div class="reveal lg:pb-1" style="transition-delay: 100ms">
+          <div class="hero-wave p-4 sm:p-6" id="hero-wave" aria-hidden="true"></div>
+          <div class="mt-3 flex items-center justify-between font-mono text-[0.58rem] uppercase tracking-[0.15em] text-[var(--muted)]">
+            <span>Amplitude</span>
+            <span class="flex items-center gap-2"><i class="size-1.5 animate-pulse rounded-full bg-emerald-500"></i> Interactive</span>
+            <span>Time</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-16 grid gap-3 sm:grid-cols-2 reveal" style="transition-delay: 160ms" aria-label="Contents">
+        <a href="#ljspeech" class="dataset-link group flex items-center justify-between rounded-2xl p-5">
+          <span>
+            <span class="eyebrow block">01 · Single speaker</span>
+            <span class="mt-2 block text-lg font-bold tracking-tight">LJ Speech dataset</span>
+          </span>
+          <span class="grid size-10 place-items-center rounded-full border border-[var(--line)] transition-transform group-hover:translate-x-1" aria-hidden="true">↓</span>
+        </a>
+        <a href="#vctk" class="dataset-link group flex items-center justify-between rounded-2xl p-5">
+          <span>
+            <span class="eyebrow block">02 · Unseen speakers</span>
+            <span class="mt-2 block text-lg font-bold tracking-tight">VCTK dataset</span>
+          </span>
+          <span class="grid size-10 place-items-center rounded-full border border-[var(--line)] transition-transform group-hover:translate-x-1" aria-hidden="true">↓</span>
+        </a>
+      </div>
+    </section>
+
+    <section id="ljspeech" class="scroll-mt-24 border-t border-[var(--line)] py-24 sm:py-32" data-observe-section>
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal grid items-end gap-8 md:grid-cols-[auto_1fr]">
+          <div class="section-number" aria-hidden="true">01</div>
+          <div class="pb-1 md:pb-3">
+            <p class="eyebrow mb-3">Single speaker · 24 kHz</p>
+            <div class="flex flex-wrap items-end justify-between gap-4">
+              <h2 class="text-3xl font-extrabold tracking-[-0.045em] sm:text-5xl">LJ Speech dataset</h2>
+              <p class="max-w-md text-sm leading-6 text-[var(--muted)]">Five utterances, aligned across the reference and five streaming variants.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-12 flex flex-wrap gap-x-5 gap-y-2 border-y border-[var(--line)] py-4 font-mono text-[0.62rem] uppercase tracking-[0.12em] text-[var(--muted)] reveal" aria-label="Playback instructions">
+          <span class="flex items-center gap-2"><i class="size-1.5 rounded-full bg-[var(--accent)]"></i> Click waveform to play / pause</span>
+          <span class="flex items-center gap-2"><i class="size-1.5 rounded-full bg-[var(--accent-2)]"></i> One clip plays at a time</span>
+          <span class="flex items-center gap-2"><i class="size-1.5 rounded-full bg-emerald-500"></i> Actual amplitude trace</span>
+        </div>
+
+        <div id="ljspeech-samples" class="mt-8 space-y-6"></div>
+      </div>
+    </section>
+
+    <section id="vctk" class="scroll-mt-24 border-t border-[var(--line)] py-24 sm:py-32" data-observe-section>
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="reveal grid items-end gap-8 md:grid-cols-[auto_1fr]">
+          <div class="section-number" aria-hidden="true">02</div>
+          <div class="pb-1 md:pb-3">
+            <p class="eyebrow mb-3">Unseen speakers · 48 kHz references</p>
+            <div class="flex flex-wrap items-end justify-between gap-4">
+              <h2 class="text-3xl font-extrabold tracking-[-0.045em] sm:text-5xl">VCTK dataset</h2>
+              <p class="max-w-md text-sm leading-6 text-[var(--muted)]">The same phrase across five speakers and accents for a focused voice comparison.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="vctk-samples" class="mt-12 grid gap-5 sm:grid-cols-2"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--line)] py-8">
+    <div class="mx-auto max-w-7xl px-4 text-center font-mono text-[0.62rem] uppercase tracking-[0.12em] text-[var(--muted)] sm:px-6 lg:px-8">
+      <span>Streaming Neural Vocoding</span>
+    </div>
+  </footer>
+
+  <button id="back-to-top" type="button" class="back-to-top fixed bottom-5 right-5 z-40 grid size-12 place-items-center rounded-full" aria-label="Back to top" title="Back to top">
+    <svg viewBox="0 0 24 24" class="size-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="m6 14 6-6 6 6" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <noscript>
+    <div class="fixed inset-x-4 bottom-4 z-[100] rounded-xl bg-red-600 p-4 text-center text-sm font-semibold text-white">
+      JavaScript is required for the interactive waveforms and audio controls.
+    </div>
+  </noscript>
+
+  <script>
+    const METHODS = [
+      { folder: 'ground_truth', label: 'Ground truth', code: 'REF', accent: '#12a87a' },
+      { folder: 'B1_causal_baseline', label: 'Causal baseline', code: 'B1', accent: '#7c879a' },
+      { folder: 'B2_causal_cached', label: 'Causal + cache', code: 'B2', accent: '#6f7ee8' },
+      { folder: 'N1_multirate', label: 'Multi-rate', code: 'N1', accent: '#2374e1' },
+      { folder: 'N2_ssm_context', label: 'SSM context', code: 'N2', accent: '#9a61d0' },
+      { folder: 'N3_gated_fusion', label: 'Gated fusion', code: 'N3', accent: '#ee6c4d' }
+    ];
+
+    const LJ_SAMPLES = [
+      {
+        id: 'LJ049-0008',
+        transcript: 'And detailing police in civilian clothes to be scattered throughout the sizable crowd.'
+      },
+      {
+        id: 'LJ049-0010',
+        transcript: 'Who responded to the unplanned event with dispatch.'
+      },
+      {
+        id: 'LJ049-0012',
+        transcript: 'At these stops, agents from the Presidential follow-up car stood between the President and the public.'
+      },
+      {
+        id: 'LJ049-0014',
+        transcript: 'The Commission regards such impromptu stops as presenting an unnecessary danger.'
+      },
+      {
+        id: 'LJ049-0016',
+        transcript: 'The Presidential limousine.'
+      }
+    ];
+
+    const VCTK_SAMPLES = [
+      { id: 'p225_001', speaker: 'p225', detail: 'Female · Southern England', accent: '#2374e1' },
+      { id: 'p226_001', speaker: 'p226', detail: 'Male · Surrey', accent: '#9a61d0' },
+      { id: 'p234_001', speaker: 'p234', detail: 'Female · West Dumfries', accent: '#ee6c4d' },
+      { id: 'p248_001', speaker: 'p248', detail: 'Female · Indian English', accent: '#12a87a' },
+      { id: 'p250_001', speaker: 'p250', detail: 'Female · Southeast England', accent: '#d78a22' }
+    ];
+
+    const icons = {
+      play: '<svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true"><path d="M8.2 5.4a1 1 0 0 1 1.52-.85l10 6.6a1 1 0 0 1 0 1.7l-10 6.6a1 1 0 0 1-1.52-.85V5.4Z"/></svg>',
+      pause: '<svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true"><path d="M7 5.5A1.5 1.5 0 0 1 8.5 4h1A1.5 1.5 0 0 1 11 5.5v13A1.5 1.5 0 0 1 9.5 20h-1A1.5 1.5 0 0 1 7 18.5v-13Zm6 0A1.5 1.5 0 0 1 14.5 4h1A1.5 1.5 0 0 1 17 5.5v13a1.5 1.5 0 0 1-1.5 1.5h-1a1.5 1.5 0 0 1-1.5-1.5v-13Z"/></svg>'
+    };
+
+    let playerCount = 0;
+
+    function playerMarkup({ src, label, code, accent, context }) {
+      const id = `audio-player-${++playerCount}`;
+      return `
+        <article class="player-card rounded-2xl p-4" style="--player-accent: ${accent}" data-audio-player data-src="${src}" data-context="${context}">
+          <div class="mb-3 flex items-center justify-between gap-3">
+            <div class="flex min-w-0 items-center gap-2.5">
+              <span class="method-code rounded-md px-2 py-1 text-[0.58rem] font-semibold tracking-wider">${code}</span>
+              <h4 class="truncate text-sm font-bold tracking-tight">${label}</h4>
+            </div>
+            <span class="player-state text-[0.56rem] uppercase tracking-wider" aria-live="polite">Ready</span>
+          </div>
+
+          <button class="waveform-button" type="button" aria-label="Play ${context}, ${label}" aria-pressed="false" aria-describedby="${id}-hint">
+            <canvas class="waveform-canvas" aria-hidden="true"></canvas>
+            <span class="axis-y" aria-hidden="true">Amp</span>
+            <span class="axis-x" aria-hidden="true">Time</span>
+            <span class="wave-action" aria-hidden="true"><span data-wave-icon>${icons.play}</span></span>
+          </button>
+
+          <div class="mt-2.5 flex items-center gap-2.5">
+            <button class="play-mini grid size-8 shrink-0 place-items-center rounded-full" type="button" aria-label="Play ${context}, ${label}" aria-pressed="false">
+              <span data-mini-icon>${icons.play}</span>
+            </button>
+            <div class="flex min-w-0 flex-1 items-center justify-between gap-2 font-mono text-[0.58rem] text-[var(--muted)]">
+              <span data-current-time>0:00</span>
+              <span id="${id}-hint" class="hidden truncate sm:inline">waveform = play / pause</span>
+              <span data-duration>—:—</span>
+            </div>
+          </div>
+
+          <audio preload="metadata" src="${src}"></audio>
+        </article>`;
+    }
+
+    function renderSamples() {
+      const ljContainer = document.getElementById('ljspeech-samples');
+      ljContainer.innerHTML = LJ_SAMPLES.map((sample, sampleIndex) => {
+        const players = METHODS.map(method => playerMarkup({
+          src: `samples/ljspeech/${method.folder}/${sample.id}.wav`,
+          label: method.label,
+          code: method.code,
+          accent: method.accent,
+          context: sample.id
+        })).join('');
+
+        return `
+          <article id="sample-${sample.id}" class="sample-set reveal scroll-mt-28 rounded-3xl p-4 sm:p-6 lg:p-7">
+            <header class="mb-6 flex items-start gap-4 border-b border-[var(--line)] pb-5">
+              <span class="sample-index grid size-10 shrink-0 place-items-center rounded-xl text-[0.63rem] font-semibold">${String(sampleIndex + 1).padStart(2, '0')}</span>
+              <div>
+                <p class="font-mono text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-[var(--accent-2)]">${sample.id}</p>
+                <h3 class="mt-2 max-w-4xl text-base font-semibold leading-7 tracking-[-0.015em] sm:text-lg">“${sample.transcript}”</h3>
+              </div>
+            </header>
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">${players}</div>
+          </article>`;
+      }).join('');
+
+      const vctkContainer = document.getElementById('vctk-samples');
+      vctkContainer.innerHTML = VCTK_SAMPLES.map((sample, sampleIndex) => `
+        <article class="sample-set reveal rounded-3xl p-5 sm:p-6">
+          <header class="mb-5 flex items-start justify-between gap-4">
+            <div>
+              <p class="eyebrow">Speaker ${sample.speaker}</p>
+              <h3 class="mt-3 text-xl font-extrabold tracking-tight">“Please call Stella.”</h3>
+              <p class="mt-2 text-xs text-[var(--muted)]">${sample.detail}</p>
+            </div>
+            <span class="sample-index grid size-10 shrink-0 place-items-center rounded-xl text-[0.63rem] font-semibold">${String(sampleIndex + 1).padStart(2, '0')}</span>
+          </header>
+          ${playerMarkup({
+            src: `samples/vctk/ground_truth/${sample.id}.wav`,
+            label: 'Reference',
+            code: 'REF',
+            accent: sample.accent,
+            context: `VCTK speaker ${sample.speaker}`
+          })}
+        </article>`).join('');
+    }
+
+    function formatTime(value) {
+      if (!Number.isFinite(value) || value < 0) return '—:—';
+      const minutes = Math.floor(value / 60);
+      const seconds = Math.floor(value % 60).toString().padStart(2, '0');
+      return `${minutes}:${seconds}`;
+    }
+
+    let sharedAudioContext;
+    function getAudioContext() {
+      if (!sharedAudioContext) {
+        const Context = window.AudioContext || window.webkitAudioContext;
+        if (!Context) throw new Error('Web Audio API is unavailable');
+        sharedAudioContext = new Context();
+      }
+      return sharedAudioContext;
+    }
+
+    let activePlayer = null;
+    const players = [];
+
+    class WavePlayer {
+      constructor(root) {
+        this.root = root;
+        this.src = root.dataset.src;
+        this.contextLabel = root.dataset.context;
+        this.audio = root.querySelector('audio');
+        this.canvas = root.querySelector('canvas');
+        this.waveButton = root.querySelector('.waveform-button');
+        this.miniButton = root.querySelector('.play-mini');
+        this.waveIcon = root.querySelector('[data-wave-icon]');
+        this.miniIcon = root.querySelector('[data-mini-icon]');
+        this.stateLabel = root.querySelector('.player-state');
+        this.currentLabel = root.querySelector('[data-current-time]');
+        this.durationLabel = root.querySelector('[data-duration]');
+        this.peaks = null;
+        this.wavePromise = null;
+        this.raf = null;
+        this.isUnavailable = false;
+
+        this.draw();
+        this.bind();
+
+        this.resizeObserver = new ResizeObserver(() => this.draw());
+        this.resizeObserver.observe(this.canvas);
+      }
+
+      bind() {
+        this.waveButton.addEventListener('click', () => this.toggle());
+        this.miniButton.addEventListener('click', () => this.toggle());
+
+        this.audio.addEventListener('loadedmetadata', () => {
+          this.durationLabel.textContent = formatTime(this.audio.duration);
+          this.draw();
+        });
+
+        this.audio.addEventListener('play', () => {
+          if (activePlayer && activePlayer !== this) activePlayer.pause();
+          activePlayer = this;
+          this.root.classList.add('is-playing');
+          this.setState('Playing');
+          this.setButtonState(true);
+          this.startProgressLoop();
+          this.ensureWaveform();
+        });
+
+        this.audio.addEventListener('pause', () => {
+          if (!this.audio.ended) this.setState(this.audio.currentTime > 0 ? 'Paused' : 'Ready');
+          this.root.classList.remove('is-playing');
+          this.setButtonState(false);
+          this.stopProgressLoop();
+          this.updateProgress();
+        });
+
+        this.audio.addEventListener('ended', () => {
+          this.root.classList.remove('is-playing');
+          this.setState('Replay');
+          this.setButtonState(false);
+          this.stopProgressLoop();
+          this.updateProgress();
+          if (activePlayer === this) activePlayer = null;
+        });
+
+        this.audio.addEventListener('error', () => {
+          this.isUnavailable = true;
+          this.root.classList.remove('is-playing', 'is-loading');
+          this.setState('Unavailable');
+          this.setButtonState(false);
+          this.waveButton.disabled = true;
+          this.miniButton.disabled = true;
+        });
+
+        this.audio.addEventListener('durationchange', () => {
+          this.durationLabel.textContent = formatTime(this.audio.duration);
+        });
+      }
+
+      async toggle() {
+        if (this.isUnavailable) return;
+
+        this.ensureWaveform();
+        if (this.audio.paused) {
+          if (this.audio.ended || this.audio.currentTime >= this.audio.duration) this.audio.currentTime = 0;
+          try {
+            await this.audio.play();
+          } catch (_) {
+            this.setState('Tap to play');
+          }
+        } else {
+          this.pause();
+        }
+      }
+
+      pause() {
+        this.audio.pause();
+      }
+
+      setState(text) {
+        this.stateLabel.textContent = text;
+      }
+
+      setButtonState(isPlaying) {
+        const label = `${isPlaying ? 'Pause' : 'Play'} ${this.contextLabel}`;
+        this.waveButton.setAttribute('aria-label', label);
+        this.waveButton.setAttribute('aria-pressed', String(isPlaying));
+        this.miniButton.setAttribute('aria-label', label);
+        this.miniButton.setAttribute('aria-pressed', String(isPlaying));
+        this.waveIcon.innerHTML = isPlaying ? icons.pause : icons.play;
+        this.miniIcon.innerHTML = isPlaying ? icons.pause : icons.play;
+      }
+
+      startProgressLoop() {
+        this.stopProgressLoop();
+        const frame = () => {
+          this.updateProgress();
+          if (!this.audio.paused && !this.audio.ended) this.raf = requestAnimationFrame(frame);
+        };
+        this.raf = requestAnimationFrame(frame);
+      }
+
+      stopProgressLoop() {
+        if (this.raf) cancelAnimationFrame(this.raf);
+        this.raf = null;
+      }
+
+      updateProgress() {
+        this.currentLabel.textContent = formatTime(this.audio.currentTime || 0);
+        this.draw();
+      }
+
+      async ensureWaveform() {
+        if (this.peaks || this.wavePromise || this.isUnavailable) return this.wavePromise;
+
+        this.root.classList.add('is-loading');
+        if (this.audio.paused) this.setState('Loading');
+
+        this.wavePromise = fetch(this.src, { cache: 'force-cache' })
+          .then(response => {
+            if (!response.ok) throw new Error(`Audio request failed: ${response.status}`);
+            return response.arrayBuffer();
+          })
+          .then(arrayBuffer => getAudioContext().decodeAudioData(arrayBuffer))
+          .then(audioBuffer => {
+            const channel = audioBuffer.getChannelData(0);
+            const binCount = 360;
+            const blockSize = Math.max(1, Math.floor(channel.length / binCount));
+            this.peaks = new Float32Array(binCount);
+
+            for (let bin = 0; bin < binCount; bin += 1) {
+              const start = bin * blockSize;
+              const end = Math.min(channel.length, start + blockSize);
+              let peak = 0;
+              for (let index = start; index < end; index += 1) {
+                const value = Math.abs(channel[index]);
+                if (value > peak) peak = value;
+              }
+              this.peaks[bin] = peak;
+            }
+
+            this.root.classList.remove('is-loading');
+            if (this.audio.paused) this.setState(this.audio.currentTime > 0 ? 'Paused' : 'Ready');
+            this.draw();
+          })
+          .catch(() => {
+            this.root.classList.remove('is-loading');
+            this.peaks = this.placeholderPeaks(180);
+            if (this.audio.paused) this.setState('Ready');
+            this.draw();
+          });
+
+        return this.wavePromise;
+      }
+
+      placeholderPeaks(count) {
+        const values = new Float32Array(count);
+        for (let index = 0; index < count; index += 1) {
+          const envelope = 0.24 + 0.58 * Math.pow(Math.sin((index / count) * Math.PI), 0.7);
+          values[index] = envelope * (0.2 + 0.8 * Math.abs(Math.sin(index * 0.43) * Math.cos(index * 0.17)));
+        }
+        return values;
+      }
+
+      draw() {
+        const bounds = this.canvas.getBoundingClientRect();
+        if (!bounds.width || !bounds.height) return;
+
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        const width = Math.round(bounds.width);
+        const height = Math.round(bounds.height);
+        const targetWidth = Math.round(width * pixelRatio);
+        const targetHeight = Math.round(height * pixelRatio);
+
+        if (this.canvas.width !== targetWidth || this.canvas.height !== targetHeight) {
+          this.canvas.width = targetWidth;
+          this.canvas.height = targetHeight;
+        }
+
+        const context = this.canvas.getContext('2d');
+        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        context.clearRect(0, 0, width, height);
+
+        const style = getComputedStyle(this.canvas);
+        const gridColor = style.getPropertyValue('--wave-grid').trim() || 'rgba(100, 116, 139, 0.12)';
+        const waveColor = style.getPropertyValue('--wave').trim() || '#8793a5';
+        const progressColor = style.getPropertyValue('--wave-progress').trim() || '#2374e1';
+        const mutedColor = getComputedStyle(document.documentElement).getPropertyValue('--muted').trim() || '#667085';
+
+        const plot = { left: 15, right: width - 9, top: 8, bottom: height - 17 };
+        const plotWidth = Math.max(1, plot.right - plot.left);
+        const plotHeight = Math.max(1, plot.bottom - plot.top);
+        const middle = plot.top + plotHeight / 2;
+
+        context.strokeStyle = gridColor;
+        context.lineWidth = 1;
+        context.beginPath();
+        [0, 0.25, 0.5, 0.75, 1].forEach(fraction => {
+          const x = plot.left + plotWidth * fraction;
+          context.moveTo(x, plot.top);
+          context.lineTo(x, plot.bottom);
+        });
+        [0, 0.5, 1].forEach(fraction => {
+          const y = plot.top + plotHeight * fraction;
+          context.moveTo(plot.left, y);
+          context.lineTo(plot.right, y);
+        });
+        context.stroke();
+
+        const peaks = this.peaks || this.placeholderPeaks(180);
+        const drawPeaks = color => {
+          context.strokeStyle = color;
+          context.lineWidth = Math.max(1.15, plotWidth / peaks.length * 0.62);
+          context.lineCap = 'round';
+          context.beginPath();
+          for (let index = 0; index < peaks.length; index += 1) {
+            const x = plot.left + (index / Math.max(1, peaks.length - 1)) * plotWidth;
+            const amplitude = Math.max(0.025, Math.min(1, peaks[index])) * plotHeight * 0.47;
+            context.moveTo(x, middle - amplitude);
+            context.lineTo(x, middle + amplitude);
+          }
+          context.stroke();
+        };
+
+        context.globalAlpha = this.peaks ? 0.72 : 0.28;
+        drawPeaks(waveColor);
+        context.globalAlpha = 1;
+
+        const progress = Number.isFinite(this.audio.duration) && this.audio.duration > 0
+          ? Math.min(1, Math.max(0, this.audio.currentTime / this.audio.duration))
+          : 0;
+
+        if (progress > 0) {
+          context.save();
+          context.beginPath();
+          context.rect(plot.left, plot.top - 2, plotWidth * progress, plotHeight + 4);
+          context.clip();
+          drawPeaks(progressColor);
+          context.restore();
+
+          const playhead = plot.left + plotWidth * progress;
+          context.strokeStyle = progressColor;
+          context.lineWidth = 1.5;
+          context.beginPath();
+          context.moveTo(playhead, plot.top);
+          context.lineTo(playhead, plot.bottom);
+          context.stroke();
+        }
+
+        context.fillStyle = mutedColor;
+        context.globalAlpha = 0.78;
+        context.font = '500 8px "IBM Plex Mono", monospace';
+        context.textAlign = 'left';
+        context.fillText('0:00', plot.left, height - 4);
+        context.textAlign = 'right';
+        context.fillText(formatTime(this.audio.duration), plot.right - 28, height - 4);
+        context.globalAlpha = 1;
+      }
+    }
+
+    function setupTheme() {
+      const buttons = [...document.querySelectorAll('[data-theme-option]')];
+      const meta = document.getElementById('theme-color-meta');
+
+      const update = theme => {
+        const isDark = theme === 'dark';
+        document.documentElement.classList.toggle('dark', isDark);
+        buttons.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.themeOption === theme)));
+        meta.setAttribute('content', isDark ? '#0b0e14' : '#f5f4ef');
+        requestAnimationFrame(() => players.forEach(player => player.draw()));
+      };
+
+      buttons.forEach(button => button.addEventListener('click', () => {
+        const theme = button.dataset.themeOption;
+        try { localStorage.setItem('streaming-vocoder-theme', theme); } catch (_) {}
+        update(theme);
+      }));
+
+      update(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    }
+
+    function setupFontControls() {
+      const range = document.getElementById('font-size-range');
+      const valueLabel = document.getElementById('font-size-value');
+      const labels = ['Very small', 'Small', 'Default', 'Large', 'Very large'];
+
+      const update = rawValue => {
+        const value = Math.max(-2, Math.min(2, Math.round(Number(rawValue))));
+        document.documentElement.dataset.fontStep = String(value);
+        range.value = String(value);
+        range.style.setProperty('--font-progress', `${(value + 2) * 25}%`);
+        range.setAttribute('aria-valuetext', labels[value + 2]);
+        valueLabel.textContent = labels[value + 2];
+        try { localStorage.setItem('streaming-vocoder-font-step', String(value)); } catch (_) {}
+        requestAnimationFrame(() => players.forEach(player => player.draw()));
+      };
+
+      range.addEventListener('input', event => update(event.target.value));
+      update(Number(document.documentElement.dataset.fontStep || 0));
+    }
+
+    function setupAccessibilityMenu() {
+      const root = document.getElementById('accessibility-menu');
+      const toggle = document.getElementById('accessibility-toggle');
+      const close = document.getElementById('accessibility-close');
+      const panel = document.getElementById('accessibility-panel');
+      const fontToggle = document.getElementById('font-size-toggle');
+      const fontPanel = document.getElementById('font-scale-panel');
+
+      const setFontScale = open => {
+        fontToggle.setAttribute('aria-expanded', String(open));
+        fontPanel.setAttribute('aria-hidden', String(!open));
+        fontPanel.classList.toggle('is-open', open);
+      };
+
+      const setMenu = (open, restoreFocus = false) => {
+        toggle.setAttribute('aria-expanded', String(open));
+        panel.setAttribute('aria-hidden', String(!open));
+        panel.classList.toggle('is-open', open);
+        if (!open) setFontScale(false);
+        if (restoreFocus) toggle.focus();
+      };
+
+      toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+      close.addEventListener('click', () => setMenu(false, true));
+      fontToggle.addEventListener('click', () => setFontScale(fontToggle.getAttribute('aria-expanded') !== 'true'));
+
+      document.addEventListener('click', event => {
+        if (!root.contains(event.target)) setMenu(false);
+      });
+
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') setMenu(false, true);
+      });
+    }
+
+    function setupHeroWave() {
+      const container = document.getElementById('hero-wave');
+      const barCount = 56;
+      container.innerHTML = Array.from({ length: barCount }, (_, index) => {
+        const x = index / (barCount - 1);
+        const envelope = Math.pow(Math.sin(Math.PI * x), 0.55);
+        const texture = 0.28 + 0.72 * Math.abs(Math.sin(index * 0.63) * Math.cos(index * 0.21));
+        const height = Math.round(9 + envelope * texture * 86);
+        const delay = `${(-index * 47) % 1400}ms`;
+        return `<i class="hero-wave-bar" style="--bar-height:${height}%;--bar-delay:${delay}"></i>`;
+      }).join('');
+    }
+
+    function setupRevealAnimations() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-visible');
+          observer.unobserve(entry.target);
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -4% 0px' });
+
+      document.querySelectorAll('.reveal').forEach((element, index) => {
+        if (!element.style.transitionDelay && index < 10) element.style.transitionDelay = `${Math.min(index * 35, 175)}ms`;
+        observer.observe(element);
+      });
+    }
+
+    function setupLazyWaveforms() {
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          const player = players.find(candidate => candidate.root === entry.target);
+          if (player) player.ensureWaveform();
+          observer.unobserve(entry.target);
+        });
+      }, { rootMargin: '420px 0px' });
+
+      players.forEach(player => observer.observe(player.root));
+    }
+
+    function setupPageProgress() {
+      const bar = document.getElementById('scroll-progress');
+      const update = () => {
+        const available = document.documentElement.scrollHeight - window.innerHeight;
+        const percent = available > 0 ? Math.min(100, Math.max(0, window.scrollY / available * 100)) : 0;
+        bar.style.width = `${percent}%`;
+      };
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    }
+
+    function setupBackToTop() {
+      const button = document.getElementById('back-to-top');
+      const update = () => button.setAttribute('data-visible', String(window.scrollY > Math.min(560, window.innerHeight * 0.7)));
+      button.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      window.addEventListener('scroll', update, { passive: true });
+      update();
+    }
+
+    function setupSectionLinks() {
+      const links = [...document.querySelectorAll('.dataset-link')];
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          links.forEach(link => link.classList.toggle('is-active', link.getAttribute('href') === `#${entry.target.id}`));
+        });
+      }, { rootMargin: '-25% 0px -60% 0px' });
+      document.querySelectorAll('[data-observe-section]').forEach(section => observer.observe(section));
+    }
+
+    renderSamples();
+    setupHeroWave();
+
+    document.querySelectorAll('[data-audio-player]').forEach(element => players.push(new WavePlayer(element)));
+
+    setupTheme();
+    setupFontControls();
+    setupAccessibilityMenu();
+    setupRevealAnimations();
+    setupLazyWaveforms();
+    setupPageProgress();
+    setupBackToTop();
+    setupSectionLinks();
+
+    if (window.location.hash) {
+      requestAnimationFrame(() => {
+        const target = document.getElementById(window.location.hash.slice(1));
+        if (target) target.scrollIntoView({ block: 'start' });
+      });
+    }
+  </script>
+</body>
+</html>

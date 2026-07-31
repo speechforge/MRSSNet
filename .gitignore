@@ -30,6 +30,7 @@ mel_cache/
 *.mp3
 *.npy
 *.npz
+!docs/samples/**/*.wav
 
 # Weights, checkpoints, and experiment output
 checkpoints/
